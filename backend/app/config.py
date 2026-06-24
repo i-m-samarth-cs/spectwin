@@ -14,6 +14,16 @@ class Settings(BaseSettings):
     CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:3001"]
 
     @property
+    def async_database_url(self) -> str:
+        # Render provides postgres:// — SQLAlchemy async requires postgresql+asyncpg://
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+asyncpg://", 1)
+        elif url.startswith("postgresql://") and "+asyncpg" not in url:
+            url = url.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return url
+
+    @property
     def cors_origins_list(self) -> list[str]:
         return self.CORS_ORIGINS
 
