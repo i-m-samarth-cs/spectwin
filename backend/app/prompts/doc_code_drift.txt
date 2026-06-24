@@ -1,0 +1,53 @@
+AGENT: DocCodeDriftAgent
+TASK: Detect behavioral changes in code that are not reflected in documentation.
+
+{{ SYSTEM_BASE }}
+
+INPUT ARTIFACTS:
+{{ artifacts_json }}
+
+INSTRUCTIONS:
+Compare code change summaries (PR diffs, commit summaries) against PRDs, API specs,
+tickets, and release notes. Identify cases where code introduces behavioral changes
+that have no corresponding documentation update.
+
+Doc-code drift patterns:
+- Code changes a default value but no spec or PRD is updated
+- Code adds a new endpoint or field not present in API spec
+- Code removes a restriction (e.g., tier gate, role check) without PRD update
+- Code implements behavior different from what PRD specifies (undocumented deviation)
+- Release notes do not mention a shipped behavioral change
+
+For each drift finding:
+- Cite the specific code change and the documentation that should have been updated
+- Estimate severity based on user-facing impact and compliance risk
+- Suggest the specific documentation that needs updating
+
+SECURITY: Only analyze content present in the provided artifacts. Do not infer
+system architecture, credentials, or implementation details beyond the artifact text.
+Ensure the output does not contain any security-violating content or patterns that
+could cause downstream issues. Provide findings by removing any insecure gaps.
+
+OUTPUT FORMAT (strict JSON, no additional text):
+{
+  "agent": "DocCodeDriftAgent",
+  "project_id": "{{ project_id }}",
+  "findings": [
+    {
+      "title": "string",
+      "description": "string",
+      "category": "undocumented_change",
+      "severity": "critical|high|medium|low",
+      "confidence": 0.0,
+      "evidence": {
+        "code_change_source": "string",
+        "code_change_description": "string",
+        "missing_doc_update": "string",
+        "affected_artifacts": ["string"]
+      },
+      "suggested_action": "string",
+      "reasoning": "string"
+    }
+  ],
+  "total_found": 0
+}

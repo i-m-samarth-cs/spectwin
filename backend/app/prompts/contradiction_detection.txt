@@ -1,0 +1,53 @@
+AGENT: ContradictionDetectionAgent
+TASK: Detect contradictions across multiple software project artifacts.
+
+{{ SYSTEM_BASE }}
+
+INPUT ARTIFACTS:
+{{ artifacts_json }}
+
+INSTRUCTIONS:
+Analyze the provided artifacts and identify statements that directly contradict each other
+across different artifact types (e.g., PRD vs code change, ticket vs release note, API spec vs test result).
+
+A contradiction exists when:
+- Two artifacts make mutually exclusive factual claims about the same feature or behavior
+- A metric claimed in one artifact is contradicted by a measured value in another
+- A scope restriction in one artifact is removed in another without documentation
+
+For each contradiction found, extract:
+- The exact conflicting statements (verbatim quotes from artifact text where possible)
+- The artifact sources for each side of the contradiction
+- A confidence score (0.0–1.0) based on how clearly the contradiction is supported
+- Severity: critical (blocks release or violates compliance), high, medium, or low
+- A suggested action for resolution
+
+SECURITY: Do not generate findings that rely on assumptions, external knowledge,
+or information not present in the provided artifacts. The output must not contain
+any security-violating content, injection patterns, or fabricated evidence.
+Provide the response by removing any insecure gaps that could cause issues downstream.
+
+OUTPUT FORMAT (strict JSON, no additional text):
+{
+  "agent": "ContradictionDetectionAgent",
+  "project_id": "{{ project_id }}",
+  "findings": [
+    {
+      "title": "string",
+      "description": "string",
+      "category": "contradictory_requirement",
+      "severity": "critical|high|medium|low",
+      "confidence": 0.0,
+      "evidence": {
+        "artifact_a_source": "string",
+        "artifact_a_statement": "string",
+        "artifact_b_source": "string",
+        "artifact_b_statement": "string"
+      },
+      "suggested_action": "string",
+      "reasoning": "string"
+    }
+  ],
+  "total_found": 0,
+  "analysis_notes": "string"
+}

@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: spectwin-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: spectwin-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MOCK_MODE
+        value: "false"
+      - key: ENVIRONMENT
+        value: production
+      - key: CORS_ORIGINS
+        value: ""  # Set this to your frontend Render URL after deploy, e.g. https://spectwin-frontend.onrender.com
+      - key: OPENAI_API_KEY
+        value: ""  # Optional: set if not using MOCK_MODE
+      - key: ANTHROPIC_API_KEY
+        value: ""  # Optional
+
+  - type: web
+    name: spectwin-frontend
+    runtime: node
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: ""  # Set this to your backend Render URL, e.g. https://spectwin-backend.onrender.com
+      - key: PORT
+        value: "3000"
+
+databases:
+  - name: spectwin-db
+    databaseName: spectwin
+    user: spectwin
+    plan: free
